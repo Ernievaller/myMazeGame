@@ -36,7 +36,7 @@ namespace MazeGame
             if (newX < 0 || newY < 0 || newX >= cols || newY >= rows)
                 return false;
             //check for walls (1 = wall)
-            return _grid[newY, newX != 1;          
+            return _grid[newY, newX] != 1;          
         }
         //Move player up 1 cell if valid                
         public void MovePlayerUp()
@@ -44,7 +44,7 @@ namespace MazeGame
             int newX = _player.X; 
             int newY = _player.Y - 1;
 
-            if(canMove(newX, newY))
+            if(CanMove(newX, newY))
             {
                 _player.Y = newY;
             }            
@@ -55,7 +55,7 @@ namespace MazeGame
             int newX = _player.X; 
             int newY = _player.Y + 1;
 
-            if(canMove(newX, newY))
+            if(CanMove(newX, newY))
             {
                 _player.Y = newY;
             }    
@@ -66,7 +66,7 @@ namespace MazeGame
             int newX = _player.X - 1; 
             int newY = _player.Y;
 
-            if(canMove(newX, newY))
+            if(CanMove(newX, newY))
             {
                 _player.X = newX;
             }  
@@ -77,7 +77,7 @@ namespace MazeGame
             int newX = _player.X + 1; 
             int newY = _player.Y;
 
-            if(canMove(newX, newY))
+            if(CanMove(newX, newY))
             {
                 _player.X = newX;
             }  
@@ -102,10 +102,15 @@ namespace MazeGame
             private bool SearchGrid(int x, int y, bool[,] visit)
                          {
                             //Check for out of bounds
-                            if(x < 0 || y < 0 || x >= _grid.GetLength(0) || y >= grid.GetLength(1)
+                            if(x < 0 || y < 0 || x >= _grid.GetLength(1) || y >= grid.GetLength(0))
                                {
                                    return false;
                                }
+
+                                if x == goal.X && y == _goal.Y
+                                {
+                                    return true;
+                                }
 
                                //wall of already visited check
                                if(_grid[y, x] == 1 || visit[y, x])
@@ -113,19 +118,21 @@ namespace MazeGame
                                     return false;
                                }
 
+                                visit[y, x] = true;
+
                                //Search in all four directions
                                return SearchGrid(x + 1, y, visit) || //right
                                       SearchGrid(x - 1, y, visit) || //left
                                       SearchGrid(x, y + 1, visit) || //down
                                       SearchGrid(x, y - 1, visit); // up                            
                          }
-        }
-
-        public Player GetPlayer()
+             public Player GetPlayer()
         {
             return _player;
         }
     }
+
+   
 
     class Program
     {
