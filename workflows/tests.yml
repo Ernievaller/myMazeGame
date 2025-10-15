@@ -1,0 +1,36 @@
+# This file defines a pipeline for running the predefined tests and publishing the results back to DevSkills. Please do not unnecessarily change it.
+
+name: Tests
+on:
+  push:
+    branches:
+      - '*'
+      - '*/*'
+      - '!master'
+      - '!main'
+jobs:
+  tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Build and run tests
+        run: "echo ::set-output name=results::$(dotnet run Program.cs | jq -s)"
+        id: fetchTestResults
+      - name: Set repo env var
+        if: always()
+        run: echo "github_repo=$GITHUB_REPOSITORY" >> $GITHUB_ENV
+      - name: Publish test results. Attempt 1.
+        uses: joelwmale/webhook-action@master
+        if: always()
+        with:
+          url: ${{ vars.AUTO_SCORE_WEBHOOK_URL }}
+          headers: '{"Authorization": "Bearer ${{ secrets.AUTO_SCORE_TOKEN }}"}'
+          body: '{"assignmentRepository": "${{ env.github_repo }}","results": [${{ steps.fetchTestResults.outputs.results }}]}'
+      - name: Publish test results. Attempt 2.
+        uses: joelwmale/webhook-action@master
+        if: always()
+        with:
+          url: ${{ vars.AUTO_SCORE_WEBHOOK_URL }}
+          headers: '{"Authorization": "Bearer ${{ secrets.AUTO_SCORE_TOKEN }}"}'
+          body: '{"assignmentRepository": "${{ env.github_repo }}","results": [${{ steps.fetchTestResults.outputs.results }}]}'
